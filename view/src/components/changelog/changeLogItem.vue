@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>Version. {{log['message']}}</h4>
+    <h4>Version {{log['message']}}</h4>
     <p class="uk-text-meta">{{log.date}}</p>
     <ul class="uk-list">
       <li v-for="(feed, index) in feeds" v-bind:key="index">

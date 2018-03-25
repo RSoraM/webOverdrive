@@ -6,7 +6,7 @@ DB_USER = urllib.quote_plus('username')
 DB_PWD = urllib.quote_plus('password')
 DB_DOMAIN = urllib.quote_plus('domain.com')
 DB_PORT = 27018
-client = MongoClient('mongodb://%s:%s@%s:%s/' % (DB_DOMAIN, DB_PORT,DB_USER, DB_PWD))
+client = MongoClient('mongodb://%s:%s@%s:%s/' % (DB_USER, DB_PWD, DB_DOMAIN, DB_PORT))
 db = client.webOverdrive
 
 

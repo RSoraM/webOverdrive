@@ -15,10 +15,12 @@
       </tbody>
     </table>
     <div class="uk-child-width-1-1 uk-text-right" uk-grid>
-      <div class="uk-margin">
+      <div>
         <span v-show="querying">
           <span uk-spinner></span> Crawling...
         </span>
+      </div>
+      <div class="uk-margin">
         <button class="uk-button uk-button-default">More</button>
         <div class="uk-text-left" uk-dropdown>
           <ul class="uk-nav uk-dropdown-nav">
@@ -81,6 +83,7 @@ export default {
       })
     },
     del: function () {
+      this.token = util.tokenStorage.fetch()
       axios({
         method: 'POST',
         url: this.url + '/rmSpider',
@@ -101,11 +104,13 @@ export default {
         })
     },
     crawl: function () {
+      this.token = util.tokenStorage.fetch()
       this.querying = true
 
       axios({
         method: 'POST',
         url: this.url + '/crawlData',
+        timeout: 120 * 1000,
         data: Qs.stringify({
           id: this.spider.id,
           token: this.token
