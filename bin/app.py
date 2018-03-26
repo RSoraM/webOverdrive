@@ -185,6 +185,7 @@ def edit_spider():
 
     return dumps(msg)
 
+
 # TODO
 # Fuzzy search
 # Search Spider
@@ -192,30 +193,51 @@ def edit_spider():
 @application.route('/searchSpider', methods=['POST'])
 def search_spider():
     # data is result list
-    msg = {'status': 200, 'message': 'OK.', 'data': []}
+    msg = {
+        'status': 200,
+        'message': 'OK.',
+        'data': {
+            'length': 0,
+            'result': []
+        }
+    }
 
     # if search nothing return 3 spider
     search_meta = request.form['search']
+    skip = request.form['skip']
+
     if not search_meta:
-        found = db.spider.find().limit(3)
-        msg['message'] = 'OK: Get 3 items'
+        length = db.spider.count()
+        found = db.spider.find().limit(3).skip(int(skip))
+        msg['message'] = 'OK: Finished query'
     else:
-        search_meta = re.compile(search_meta)
+        search_meta = re.compile(search_meta, re.IGNORECASE)
+        length = db.spider.find({
+            "$or": [{
+                'spider.name': search_meta
+            }, {
+                'spider.description': search_meta
+            }]
+        }).count(True)
         found = db.spider.find({
             "$or": [{
                 'spider.name': search_meta
             }, {
                 'spider.description': search_meta
             }]
-        })
+        }).limit(3).skip(int(skip))
         msg['message'] = 'OK: Finished query'
 
     # append result to data
+    msg['data']['length'] = length
     for item in found:
-        msg['data'].append({
-            'id': str(item['_id']),
-            'spider': item['spider'],
-            'createdDate': woTime.object_id_to_date(item['_id'])
+        msg['data']['result'].append({
+            'id':
+            str(item['_id']),
+            'spider':
+            item['spider'],
+            'createdDate':
+            woTime.object_id_to_date(item['_id'])
         })
 
     # feed back

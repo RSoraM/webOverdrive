@@ -10,5 +10,9 @@
   {
     "type": "fixed",
     "info": "install.py"
+  },
+  {
+    "type": "fixed",
+    "info": "Can't select file when try to delete data"
   }
 ]

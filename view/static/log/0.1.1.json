@@ -2,5 +2,13 @@
   {
     "type": "fixed",
     "info": "install.py"
-  }
+  },
+  {
+		"type": "added",
+		"info": "Readme.md"
+  },
+  {
+    "type": "added",
+    "info": "Fuzzy Search Feature and Search Result Paging"
+	}
 ]
