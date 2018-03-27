@@ -1,11 +1,11 @@
 import UIkit from 'uikit'
+import api from './setting'
 
 let SPIDER_STORAGE_KEY = 'wo-spider'
 let TOKEN_STORAGE_KEY = 'wo-token'
 
 export default {
-  apiUrl: 'http://localhost:5000',
-  // apiUrl: 'http://api.rsoram.xyz',
+  apiUrl: api,
   notification: function (message) {
     if (message.status === undefined) {
       UIkit.notification({

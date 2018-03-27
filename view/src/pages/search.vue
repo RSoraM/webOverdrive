@@ -14,7 +14,8 @@
     </ul>
     <ul class="uk-switcher searchSmall">
       <li>
-        <search-form @getSearchResults='getSearchResults'></search-form>
+        <search-form
+            @getSearchResults='getSearchResults'></search-form>
         <search-result v-for="item in searchResult" v-bind:key="item.id" :item="item" @spiderOnFocus='spiderOnFocus'></search-result>
       </li>
       <li v-show="!EmptySpider" class="uk-hidden@m">

@@ -4,8 +4,31 @@
       <span uk-search-icon></span>
       <input v-model.lazy.trim="searchMeta" type="search" class="uk-search-input" placeholder="Search Spider...">
     </div>
-    <div v-show="querying">
-      <span uk-spinner></span> Querying...
+    <div>
+      <!-- paging -->
+      <ul class="uk-pagination uk-flex uk-flex-right uk-margin-medium-bottom" uk-margin>
+
+        <li v-show="querying">
+          <span>
+            <span uk-spinner></span> Querying...</span>
+        </li>
+
+        <li v-if="page.index > 1">
+          <a @click="page.index -= 1">
+            <span uk-pagination-previous></span>
+          </a>
+        </li>
+
+        <li>{{page.index}}</li>
+        <li>-</li>
+        <li>{{page.length}}</li>
+
+        <li v-if="page.index != page.length">
+          <a @click="page.index += 1">
+            <span uk-pagination-next></span>
+          </a>
+        </li>
+      </ul>
     </div>
     <div v-if="empty && !querying" class="uk-margin-small">
       <span class="uk-meta">Find Nothing</span>
@@ -24,6 +47,10 @@ export default {
   data () {
     return {
       searchMeta: (this.$route.query.searchMeta ? this.$route.query.searchMeta : ''),
+      page: {
+        index: 1,
+        length: 1
+      },
       querying: false,
       empty: false,
       url: util.apiUrl
@@ -32,7 +59,14 @@ export default {
 
   watch: {
     searchMeta: function () {
+      this.page.index = 1
       this.ajaxQuery()
+    },
+    page: {
+      handler: function () {
+        this.ajaxQuery()
+      },
+      deep: true
     }
   },
 
@@ -48,7 +82,8 @@ export default {
         method: 'POST',
         url: this.url + '/searchSpider',
         data: Qs.stringify({
-          search: this.searchMeta
+          search: this.searchMeta,
+          skip: (this.page.index - 1) * 3
         }),
         header: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -61,9 +96,12 @@ export default {
         .then(response => {
           this.querying = false
           let msg = response.data
-          this.empty = (msg['data'].length === 0)
+          let length = parseInt(msg['data']['length'] / 3)
 
-          this.$emit('getSearchResults', msg['data'])
+          this.empty = (msg['data']['result'].length === 0)
+
+          this.page.length = (msg['data']['length'] % 3 ? length + 1 : length)
+          this.$emit('getSearchResults', msg['data']['result'])
         })
     }
   }
