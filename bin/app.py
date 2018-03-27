@@ -302,6 +302,12 @@ def rm_crawl_data():
     if auth['status'] != 200 or auth['data']['level'] <= 2:
         return dumps(auth)
 
+    # form check
+    if not file_id:
+        msg['status'] = 300
+        msg['message'] = 'Warning: Select a file'
+        return dumps(msg)
+
     found = db.crawl_data.find_one_and_delete({'_id': ObjectId(file_id)})
 
     if found:

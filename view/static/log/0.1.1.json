@@ -1,7 +1,7 @@
 [
   {
     "type": "fixed",
-    "info": "install.py"
+    "info": "update install.py"
   },
   {
 		"type": "added",
@@ -10,5 +10,9 @@
   {
     "type": "added",
     "info": "Fuzzy Search Feature and Search Result Paging"
-	}
+  },
+  {
+    "type": "fixed",
+    "info": "Can't select file when try to delete data(but remove r u sure dialog)"
+  }
 ]

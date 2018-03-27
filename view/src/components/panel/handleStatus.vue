@@ -22,7 +22,7 @@
       </div>
       <div class="uk-margin">
         <button class="uk-button uk-button-default">More</button>
-        <div class="uk-text-left" uk-dropdown>
+        <div class="uk-text-left" uk-dropdown="mode: click">
           <ul class="uk-nav uk-dropdown-nav">
             <li class="uk-nav-header">
               Spider Operation

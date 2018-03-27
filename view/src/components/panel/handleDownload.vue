@@ -1,16 +1,15 @@
 <template>
   <div>
     <select v-model="fileId" class="uk-select">
+      <option disabled value="">Select a file</option>
       <option v-for="file in downloadList" :key="file['id']" :value="file.id">{{file.date}}</option>
     </select>
     <div class=" uk-child-width-1-1 uk-text-right uk-margin-small" uk-grid>
       <div>
         <button class="uk-button uk-button-default">More</button>
-        <div class="uk-text-left" uk-dropdown>
+        <div class="uk-text-left" uk-dropdown="mode: click">
           <ul class="uk-nav uk-dropdown-nav">
-            <li class="uk-nav-header">
-              Download
-            </li>
+            <li class="uk-nav-header">Download</li>
             <li>
               <a href="#" @click="downloadData('csv')">as .csv</a>
             </li>
@@ -19,22 +18,7 @@
             </li>
             <li class="uk-nav-divider"></li>
             <li>
-              <a href="#" uk-toggle="target: #r-u-sure-file">Delete</a>
-              <div id="r-u-sure-file" uk-modal>
-                <div class="uk-modal-dialog">
-                  <button class="uk-modal-close-default" type="button" uk-close></button>
-                  <div class="uk-modal-header">
-                    <h2 class="uk-modal-title">Are you Sure?</h2>
-                  </div>
-                  <div class="uk-modal-body">
-                    <p>This Operation Will Delete This Crawl Data On Database.</p>
-                    <p class="uk-text-right">
-                      <button class="uk-button uk-button-danger uk-modal-close" type="button" @click="deleteData">Yes, I Do</button>
-                      <button class="uk-button uk-button-primary uk-modal-close">No, Thanks</button>
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <a href="#" @click="delData">Delete</a>
             </li>
           </ul>
         </div>
@@ -56,40 +40,38 @@ export default {
   data: function () {
     return {
       fileId: '',
-      fileDate: '',
       token: util.tokenStorage.fetch(),
       url: util.apiUrl
     }
   },
   props: ['downloadList', 'spider'],
+
   computed: {
     filename: function () {
+      let that = this
       if (this.fileId) {
-        return this.spider['spider']['name'] + ' ' + this.fileDate
+        let fileDate = that.downloadList.find(item => {
+          return item['id'] === that.fileId
+        })['date']
+        return this.spider['spider']['name'] + ' ' + fileDate
       }
       return undefined
     }
   },
 
   watch: {
-    fileId: function () {
-      this.fileDate = this.downloadList.find(item => {
-        return item['id'] === this.fileId
-      })['date']
+    downloadList: {
+      handler: function () {
+        this.fileId = ''
+      },
+      deep: true
     }
   },
 
   methods: {
-    deleteData: function () {
-      // form check
-      if (!this.fileId) {
-        let msg = {
-          status: 500,
-          message: 'Error: Select a file'
-        }
-        util.notification(msg)
-        return 0
-      }
+    delData: function () {
+      console.log(this.fileId)
+
       this.token = util.tokenStorage.fetch()
 
       axios({
@@ -113,6 +95,8 @@ export default {
         })
     },
     getData: async function () {
+      console.log(this.fileId)
+
       let msg = {}
       await axios({
         method: 'POST',
