@@ -66,8 +66,8 @@ export default 'http://$url'
 
     execfile(activate_this, dict(__file__=activate_this))
     system('pip install -r requirement')
-    system('cd view && npm run build')
-    system('bash log2json.sh')
+    system('cd view && npm install && npm run build')
+    system('chmod +x log2json.sh && bash log2json.sh')
     print (
     '''
     Finished install.

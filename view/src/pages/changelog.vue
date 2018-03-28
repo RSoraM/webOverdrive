@@ -2,11 +2,11 @@
   <div class="uk-panel uk-panel-scrollable">
     <h3 class="uk-heading-bullet">Change Log</h3>
     <div>
-      <div>
-        <change-log-item :log="init"></change-log-item>
-      </div>
-      <div v-for="(log, index) in logs" v-bind:key="index">
+      <div class="uk-margin-large" v-for="(log, index) in logs" v-bind:key="index">
         <change-log-item :log="log"></change-log-item>
+      </div>
+      <div class="uk-margin-large">
+        <change-log-item :log="init"></change-log-item>
       </div>
     </div>
   </div>

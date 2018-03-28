@@ -1,0 +1,10 @@
+[
+  {
+    "type": "fixed",
+    "info": "Merges Info in log2json"
+  },
+  {
+    "type": "fixed",
+    "info": "install.py can't install node requirement"
+  }
+]

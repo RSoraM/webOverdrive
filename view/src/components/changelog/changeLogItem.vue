@@ -2,10 +2,10 @@
   <div>
     <h4>Version {{log['message']}}</h4>
     <p class="uk-text-meta">{{log.date}}</p>
-    <ul class="uk-list">
-      <li v-for="(feed, index) in feeds" v-bind:key="index">
+    <ul class="uk-list" v-for="(feed, index) in feeds" v-bind:key="index">
+      <li>
         <span :class="feedType(feed)"
-            class="uk-label uk-margin-right uk-text-center">
+            class="uk-label uk-margin-right uk-text-center uk-width-1-5">
           {{feed.type}}
         </span>
         {{feed.info}}
