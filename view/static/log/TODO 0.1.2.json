@@ -12,19 +12,7 @@
     "info": "Add raw page(string) to crawl data"
   },
   {
-    "type": "fixed",
-    "info": "Query twice and endless loading(search result and crawl data)"
-  },
-  {
     "type": "changed",
     "info": "Improve r u sure dialog(using UIkit.modal.alert())"
-  },
-  {
-    "type": "fixed",
-    "info": "Merges Info in log2json"
-  },
-  {
-    "type": "fixed",
-    "info": "install.py can't install node requirement"
   }
 ]

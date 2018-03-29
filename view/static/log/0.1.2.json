@@ -6,5 +6,9 @@
   {
     "type": "fixed",
     "info": "install.py can't install node requirement"
+  },
+  {
+    "type": "fixed",
+    "info": "Query twice(search result and crawl data)"
   }
 ]

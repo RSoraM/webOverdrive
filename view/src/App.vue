@@ -3,12 +3,12 @@
     <div class="uk-grid-small" uk-grid>
 
       <!-- Nav PC -->
-      <div id="wo-1-4" class="uk-width-1-5 uk-visible@m">
+      <div v-if="width > 960" id="wo-1-4" class="uk-width-1-5 uk-visible@m">
         <nav-medium class="uk-padding"></nav-medium>
       </div>
 
       <!-- Nav Mobile -->
-      <div class="uk-width-1-1 uk-hidden@m">
+      <div v-if="width < 960" class="uk-width-1-1 uk-hidden@m">
         <nav-small uk-sticky></nav-small>
       </div>
 
@@ -20,12 +20,12 @@
           <router-view id="wo-2-4" class="uk-padding" :spider='spider' @spiderOnFocus='spiderOnFocus' />
 
           <!-- Detail PC -->
-          <div id="wo-3-4" class="uk-padding uk-visible@m uk-panel uk-panel-scrollable">
+          <div v-if="width > 960" id="wo-3-4" class="uk-padding uk-visible@m uk-panel uk-panel-scrollable">
             <detail v-if="!EmptySpider" :spider="spider"></detail>
           </div>
 
           <!-- Handle PC -->
-          <div id="wo-4-4" class="uk-padding uk-visible@m uk-panel uk-panel-scrollable">
+          <div v-if="width > 960" id="wo-4-4" class="uk-padding uk-visible@m uk-panel uk-panel-scrollable">
             <handle v-if="!EmptySpider" :spider="spider"></handle>
           </div>
 
@@ -47,6 +47,7 @@ export default {
   name: 'App',
   data: function () {
     return {
+      width: screen.width,
       spider: {}
     }
   },
