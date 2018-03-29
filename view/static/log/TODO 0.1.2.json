@@ -10,9 +10,5 @@
   {
     "type": "added",
     "info": "Add raw page(string) to crawl data"
-  },
-  {
-    "type": "changed",
-    "info": "Improve r u sure dialog(using UIkit.modal.alert())"
   }
 ]

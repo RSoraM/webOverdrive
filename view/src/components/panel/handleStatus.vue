@@ -32,22 +32,7 @@
             </li>
             <li class="uk-nav-divider"></li>
             <li>
-              <a href="#" uk-toggle="target: #r-u-sure-spider">Delete</a>
-              <div id="r-u-sure-spider" uk-modal>
-                <div class="uk-modal-dialog">
-                  <button class="uk-modal-close-default" type="button" uk-close></button>
-                  <div class="uk-modal-header">
-                    <h2 class="uk-modal-title">Are you Sure?</h2>
-                  </div>
-                  <div class="uk-modal-body">
-                    <p>This Operation Will Delete This Spider On Database.</p>
-                    <p class="uk-text-right">
-                      <button class="uk-button uk-button-danger uk-modal-close" type="button" @click="del">Yes, I Do</button>
-                      <button class="uk-button uk-button-primary uk-modal-close">No, Thanks</button>
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <a href="#" @click="del">Delete</a>
             </li>
           </ul>
         </div>
@@ -60,6 +45,7 @@
 <script>
 import axios from 'axios'
 import Qs from 'qs'
+import UIkit from 'uikit'
 
 import util from '@/assets/util'
 
@@ -83,25 +69,30 @@ export default {
       })
     },
     del: function () {
-      this.token = util.tokenStorage.fetch()
-      axios({
-        method: 'POST',
-        url: this.url + '/rmSpider',
-        data: Qs.stringify({
-          id: this.spider.id,
-          token: this.token
-        }),
-        header: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      })
-        .catch(err => {
-          util.notification(err)
+      let that = this
+      UIkit.modal.confirm(
+        '<h2 class="uk-modal-title">Are you Sure?</h2><p>This Operation Will Delete This Spider On Database.</p>'
+      ).then(function () {
+        that.token = util.tokenStorage.fetch()
+        axios({
+          method: 'POST',
+          url: that.url + '/rmSpider',
+          data: Qs.stringify({
+            id: that.spider.id,
+            token: that.token
+          }),
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         })
-        .then(response => {
-          let message = response.data
-          util.notification(message)
-        })
+          .catch(err => {
+            util.notification(err)
+          })
+          .then(response => {
+            let message = response.data
+            util.notification(message)
+          })
+      }, function () {})
     },
     crawl: function () {
       this.token = util.tokenStorage.fetch()

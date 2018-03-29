@@ -32,6 +32,7 @@
 import axios from 'axios'
 import Qs from 'qs'
 import Papa from 'papaparse'
+import UIkit from 'uikit'
 
 import util from '@/assets/util'
 
@@ -70,29 +71,34 @@ export default {
 
   methods: {
     delData: function () {
-      console.log(this.fileId)
+      let that = this
 
-      this.token = util.tokenStorage.fetch()
+      UIkit.modal.confirm(
+        '<h2 class="uk-modal-title">Are you Sure?</h2><p>This Operation Will Delete This Data On Database.</p>'
+      ).then(function () {
+        that.token = util.tokenStorage.fetch()
 
-      axios({
-        method: 'POST',
-        url: this.url + '/rmCrawlData',
-        data: Qs.stringify({
-          id: this.fileId,
-          token: this.token
-        }),
-        header: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      })
-        .catch(err => {
-          util.notification(err)
+        axios({
+          method: 'POST',
+          url: that.url + '/rmCrawlData',
+          data: Qs.stringify({
+            id: that.fileId,
+            token: that.token
+          }),
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         })
-        .then(response => {
-          let msg = response.data
-          util.notification(msg)
-          this.$emit('updateDownloadList')
-        })
+          .catch(err => {
+            util.notification(err)
+          })
+          .then(response => {
+            let msg = response.data
+            util.notification(msg)
+            that.$emit('updatePreviewData', [])
+            that.$emit('updateDownloadList')
+          })
+      }, function () {})
     },
     getData: async function () {
       console.log(this.fileId)

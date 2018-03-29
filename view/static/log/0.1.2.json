@@ -10,5 +10,9 @@
   {
     "type": "fixed",
     "info": "Query twice(search result and crawl data)"
+  },
+  {
+    "type": "changed",
+    "info": "Improve r u sure dialog(using UIkit.modal.confirm())"
   }
 ]
