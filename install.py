@@ -48,7 +48,7 @@ export default 'http://$url'
         print 'Need api url to finish install'
         return 0
 
-    db_file = open('./bin/tools/db.py', 'w')
+    db_file = open('./bin/lib/db.py', 'w')
     db_file.write(db)
     db_file.close()
 

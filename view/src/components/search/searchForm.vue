@@ -59,11 +59,8 @@ export default {
     searchMeta: function () {
       this.index === 1 ? this.ajaxQuery() : this.index = 1
     },
-    index: {
-      handler: function () {
-        this.ajaxQuery()
-      },
-      deep: true
+    index: function () {
+      this.ajaxQuery()
     }
   },
 
