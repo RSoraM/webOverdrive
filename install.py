@@ -48,7 +48,7 @@ export default 'http://$url'
         print 'Need api url to finish install'
         return 0
 
-    db_file = open('./bin/tools/db.py', 'w')
+    db_file = open('./bin/lib/db.py', 'w')
     db_file.write(db)
     db_file.close()
 
@@ -66,8 +66,8 @@ export default 'http://$url'
 
     execfile(activate_this, dict(__file__=activate_this))
     system('pip install -r requirement')
-    system('cd view && npm run build')
-    system('bash log2json.sh')
+    system('cd view && npm install && npm run build')
+    system('chmod +x log2json.sh && bash log2json.sh')
     print (
     '''
     Finished install.

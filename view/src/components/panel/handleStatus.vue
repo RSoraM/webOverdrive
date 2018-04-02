@@ -9,17 +9,23 @@
         <tr>
           <td>Lasted Crawl:</td>
           <td>
-            <span v-if="!querying">{{downloadList.length?downloadList[0].date:'Never run.'}}</span>
+            <span>{{downloadList.length?downloadList[0].date:'Never run.'}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Status:</td>
+          <td>
+            <span v-show="running">
+              <span uk-spinner></span> Running...
+            </span>
+            <span v-show="!running">
+              Runable
+            </span>
           </td>
         </tr>
       </tbody>
     </table>
     <div class="uk-child-width-1-1 uk-text-right" uk-grid>
-      <div>
-        <span v-show="querying">
-          <span uk-spinner></span> Crawling...
-        </span>
-      </div>
       <div class="uk-margin">
         <button class="uk-button uk-button-default">More</button>
         <div class="uk-text-left" uk-dropdown="mode: click">
@@ -28,30 +34,15 @@
               Spider Operation
             </li>
             <li>
-              <a href="#" @click="edit">Edit</a>
+              <a href="#" @click="editSpider">Edit</a>
             </li>
             <li class="uk-nav-divider"></li>
             <li>
-              <a href="#" uk-toggle="target: #r-u-sure-spider">Delete</a>
-              <div id="r-u-sure-spider" uk-modal>
-                <div class="uk-modal-dialog">
-                  <button class="uk-modal-close-default" type="button" uk-close></button>
-                  <div class="uk-modal-header">
-                    <h2 class="uk-modal-title">Are you Sure?</h2>
-                  </div>
-                  <div class="uk-modal-body">
-                    <p>This Operation Will Delete This Spider On Database.</p>
-                    <p class="uk-text-right">
-                      <button class="uk-button uk-button-danger uk-modal-close" type="button" @click="del">Yes, I Do</button>
-                      <button class="uk-button uk-button-primary uk-modal-close">No, Thanks</button>
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <a href="#" @click="delSpider">Delete</a>
             </li>
           </ul>
         </div>
-        <button class="uk-button uk-button-primary" @click="crawl">Crawl</button>
+        <button class="uk-button uk-button-primary" @click="crawlData">Crawl</button>
       </div>
     </div>
   </div>
@@ -60,21 +51,65 @@
 <script>
 import axios from 'axios'
 import Qs from 'qs'
+import UIkit from 'uikit'
 
 import util from '@/assets/util'
 
 export default {
-  name: 'handle-run',
+  name: 'handle-status',
   data: function () {
     return {
-      querying: false,
+      running: false,
       token: util.tokenStorage.fetch(),
       url: util.apiUrl
     }
   },
   props: ['spider', 'downloadList'],
+
+  created: function () {
+    this.updateStatus()
+  },
+
+  watch: {
+    spider: {
+      handler: function () {
+        this.updateStatus()
+      },
+      deep: true
+    }
+  },
+
   methods: {
-    edit: function () {
+    sleep: function (sec) {
+      return new Promise(resolve => setTimeout(resolve, sec * 1000))
+    },
+    updateStatus: async function () {
+      await axios({
+        method: 'POST',
+        url: this.url + '/getStatus',
+        data: Qs.stringify({
+          id: this.spider.id
+        }),
+        header: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+        .catch(err => {
+          util.notification(err)
+        })
+        .then(response => {
+          let message = response.data
+          this.running = message['data']
+        })
+
+      if (this.running) {
+        await this.sleep(3)
+        await this.updateStatus()
+      } else {
+        this.$emit('updateDownloadList')
+      }
+    },
+    editSpider: function () {
       this.$router.push({
         path: '/spider',
         query: {
@@ -82,35 +117,46 @@ export default {
         }
       })
     },
-    del: function () {
-      this.token = util.tokenStorage.fetch()
-      axios({
-        method: 'POST',
-        url: this.url + '/rmSpider',
-        data: Qs.stringify({
-          id: this.spider.id,
-          token: this.token
-        }),
-        header: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      })
-        .catch(err => {
-          util.notification(err)
-        })
-        .then(response => {
-          let message = response.data
-          util.notification(message)
-        })
+    delSpider: function () {
+      let that = this
+      UIkit.modal
+        .confirm(
+          `
+          <h2 class="uk-modal-title">Are you Sure?</h2>
+          <p>This Operation Will Delete This Spider On Database.</p>
+          `
+        )
+        .then(
+          function () {
+            that.token = util.tokenStorage.fetch()
+            axios({
+              method: 'POST',
+              url: that.url + '/rmSpider',
+              data: Qs.stringify({
+                id: that.spider.id,
+                token: that.token
+              }),
+              header: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              }
+            })
+              .catch(err => {
+                util.notification(err)
+              })
+              .then(response => {
+                let message = response.data
+                util.notification(message)
+              })
+          },
+          function () {}
+        )
     },
-    crawl: function () {
+    crawlData: function () {
       this.token = util.tokenStorage.fetch()
-      this.querying = true
 
       axios({
         method: 'POST',
         url: this.url + '/crawlData',
-        timeout: 120 * 1000,
         data: Qs.stringify({
           id: this.spider.id,
           token: this.token
@@ -120,16 +166,13 @@ export default {
         }
       })
         .catch(err => {
-          this.querying = false
           util.notification(err)
         })
         .then(response => {
           let message = response.data
 
           util.notification(message)
-
-          this.querying = false
-          this.$emit('updateDownloadList')
+          this.updateStatus()
         })
     }
   }
@@ -138,9 +181,8 @@ export default {
 </script>
 
 <style scoped>
-  td {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-
+td {
+  padding-left: 0px;
+  padding-right: 0px;
+}
 </style>

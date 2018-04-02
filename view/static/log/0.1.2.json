@@ -1,0 +1,30 @@
+[
+  {
+    "type": "fixed",
+    "info": "Merges Info in log2json"
+  },
+  {
+    "type": "fixed",
+    "info": "install.py can't install node requirement"
+  },
+  {
+    "type": "fixed",
+    "info": "Query twice(search result and crawl data)"
+  },
+  {
+    "type": "changed",
+    "info": "Improve r u sure dialog(using UIkit.modal.confirm())"
+  },
+  {
+    "type": "changed",
+    "info": "Crawl Data run as multiprocessing"
+  },
+  {
+    "type": "added",
+    "info": "Crawler URL deduplication"
+  },
+  {
+    "type": "added",
+    "info": "Add raw page(string) to crawl data"
+  }
+]

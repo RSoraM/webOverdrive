@@ -1,13 +1,13 @@
 <template>
-  <article class="uk-article uk-text-meta">
-    <h3>Spider Detail</h3>
-    <h4>{{filteredSpider.name}}</h4>
-    <span v-if="filteredSpider.description">
+  <article class="uk-article">
+    <h3>{{filteredSpider.name}}</h3>
+    <span class="uk-text-meta">{{spider.createdDate}}</span>
+    <p v-if="filteredSpider.description">
       {{filteredSpider.description}}
-    </span>
-    <span v-else>
+    </p>
+    <p v-else>
       Missing Description.
-    </span>
+    </p>
 
     <h4>URL:</h4>
     <a class="uk-link-heading" :href="filteredSpider.url" target="_blank">{{filteredSpider.url}}</a>

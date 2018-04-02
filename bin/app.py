@@ -1,16 +1,15 @@
 # coding=utf-8
 import json
 import re
+
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-
 from flask import Flask, request
 from flask_cors import CORS
 
-# import spider.Spider as woSpider
-from tools import Time as woTime
-from tools.db import get_db
-from wo.WebOverdrive import WebOverdrive
+from lib import Time as woTime
+from lib.db import get_db
+from lib.WebOverdrive import WebOverdrive
 
 db = get_db()
 spider = WebOverdrive()
@@ -186,8 +185,6 @@ def edit_spider():
     return dumps(msg)
 
 
-# TODO
-# Fuzzy search
 # Search Spider
 # auth: level n/a
 @application.route('/searchSpider', methods=['POST'])
@@ -233,12 +230,46 @@ def search_spider():
     for item in found:
         msg['data']['result'].append({
             'id':
-            str(item['_id']),
+            str(item.get('_id')),
             'spider':
-            item['spider'],
+            item.get('spider'),
             'createdDate':
-            woTime.object_id_to_date(item['_id'])
+            woTime.object_id_to_date(item.get('_id')),
+            'status':
+            item.get('status')
         })
+
+    # feed back
+    return dumps(msg)
+
+
+# get Spider Status
+# auth: level n/a
+@application.route('/getStatus', methods=['POST'])
+def getStatus():
+    # data is running? running : runable
+    msg = {'status': 200, 'message': 'OK.', 'data': ''}
+
+    spider_id = request.form['id']
+
+    if not spider_id:
+        msg['status'] = 500
+        msg['message'] = 'Error: Lack spider id'
+        return dumps(msg)
+
+    found = db.spider.find_one({
+        '_id': ObjectId(spider_id)
+    }, {
+        '_id': 0,
+        'spider': 0
+    })
+    if not found:
+        msg['status'] = 500
+        msg['message'] = 'Error: Spider not found'
+        return dumps(msg)
+
+    msg['message'] = 'OK: Get Spider Status'
+    msg['data'] = found['running']
 
     # feed back
     return dumps(msg)
@@ -252,9 +283,9 @@ def search_spider():
 # Add Crawl Data(run spider)
 # auth: level <= 3
 @application.route('/crawlData', methods=['POST'])
-def run_spider():
-    # data is crawl data's id
-    msg = {'status': 200, 'message': 'OK.', 'data': ''}
+def add_crawl_task():
+    # None Data
+    msg = {'status': 200, 'message': 'OK.', 'data': None}
     spider_id = request.form['id']
 
     # Auth
@@ -275,16 +306,15 @@ def run_spider():
         msg['message'] = 'Error: Spider not found'
         return dumps(msg)
 
-    # Run spider
-    data = []
-    data = spider.run(found['spider'], datas=data)
-    file_id = db.crawl_data.insert_one({
-        'data': data,
-        'spider_id': ObjectId(spider_id)
-    }).inserted_id
+    # Running?
+    if found.get("running"):
+        msg['status'] = 300
+        msg['message'] = 'Warning: Spider is running'
 
-    msg['message'] = 'OK: Finished crawl'
-    msg['data'] = str(file_id)
+    # Add spider in queue
+    spider.add(found)
+
+    msg['message'] = 'OK: Add Spider in queue'
 
     return dumps(msg)
 

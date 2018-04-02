@@ -1,4 +1,5 @@
 import arrow
+import time
 from bson.objectid import ObjectId
 
 
@@ -11,3 +12,7 @@ def object_id_to_date(object_id, tz='Asia/Shanghai'):
 
 def now():
     return arrow.now()
+
+
+def sleep(sec):
+    time.sleep(sec)

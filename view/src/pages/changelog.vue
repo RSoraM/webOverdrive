@@ -2,8 +2,11 @@
   <div class="uk-panel uk-panel-scrollable">
     <h3 class="uk-heading-bullet">Change Log</h3>
     <div>
-      <div v-for="(log, index) in logs" v-bind:key="index">
+      <div class="uk-margin-large" v-for="(log, index) in logs" v-bind:key="index">
         <change-log-item :log="log"></change-log-item>
+      </div>
+      <div class="uk-margin-large">
+        <change-log-item :log="init"></change-log-item>
       </div>
     </div>
   </div>
@@ -19,6 +22,10 @@ export default {
   name: 'changelog',
   data: function () {
     return {
+      init: {
+        'date': 'Sun Mar 25 16:17:05 2018 +0800',
+        'message': '0.1.0'
+      },
       logs: []
     }
   },
