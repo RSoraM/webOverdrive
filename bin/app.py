@@ -25,11 +25,11 @@ def available_test():
     if request.method == 'GET':
         msg['data'] = 'GET Available.'
         msg_id = db.test.insert_one(msg).inserted_id
-        msg['message'] = 'OK: ' + msg_id
+        msg['message'] = 'OK: ' + str(msg_id)
     else:
         msg['data'] = 'POST Available.'
         msg_id = db.test.insert_one(msg).inserted_id
-        msg['message'] = 'OK: ' + msg_id
+        msg['message'] = 'OK: ' + str(msg_id)
 
     return dumps(msg)
 

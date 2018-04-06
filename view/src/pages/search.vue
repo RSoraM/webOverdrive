@@ -5,10 +5,10 @@
       <li>
         <a href="">search</a>
       </li>
-      <li v-if="width < 960">
+      <li v-if="width < 960 && !EmptySpider">
         <a href="">detail</a>
       </li>
-      <li v-if="width < 960">
+      <li v-if="width < 960 && !EmptySpider">
         <a href="">Panel</a>
       </li>
     </ul>
@@ -18,11 +18,11 @@
             @getSearchResults='getSearchResults'></search-form>
         <search-result v-for="item in searchResult" v-bind:key="item.id" :item="item" @spiderOnFocus='spiderOnFocus'></search-result>
       </li>
-      <li class="uk-hidden@m" v-if="width < 960">
-        <detail v-if="!EmptySpider" :spider="spider"></detail>
+      <li v-if="width < 960 && !EmptySpider">
+        <detail :spider="spider"></detail>
       </li>
-      <li class="uk-hidden@m" v-if="width < 960">
-        <handle v-if="!EmptySpider" :spider="spider"></handle>
+      <li v-if="width < 960 && !EmptySpider">
+        <handle :spider="spider"></handle>
       </li>
     </ul>
   </div>
