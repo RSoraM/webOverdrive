@@ -43,6 +43,8 @@ export default {
 
   watch: {
     spider: function () {
+      this.downloadList = []
+      this.previewData = []
       this.updateDownloadList()
     }
   },

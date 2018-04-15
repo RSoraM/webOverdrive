@@ -3,6 +3,7 @@ import api from './setting'
 
 let SPIDER_STORAGE_KEY = 'wo-spider'
 let TOKEN_STORAGE_KEY = 'wo-token'
+let SEARCH_CACHE_KEY = 'wo-cache'
 
 export default {
   apiUrl: api,
@@ -33,6 +34,18 @@ export default {
       })
     }
   },
+  searchCache: {
+    fetch: function () {
+      let empty = []
+      let cache = JSON.parse(
+        localStorage.getItem(SEARCH_CACHE_KEY) || JSON.stringify(empty)
+      )
+      return cache
+    },
+    save: function (spider) {
+      localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify(spider))
+    }
+  },
   spiderStorage: {
     fetch: function () {
       let empty = {
@@ -43,21 +56,21 @@ export default {
         next: ''
       }
       let spider = JSON.parse(
-        localStorage.getItem(SPIDER_STORAGE_KEY) || JSON.stringify(empty)
+        sessionStorage.getItem(SPIDER_STORAGE_KEY) || JSON.stringify(empty)
       )
       return spider
     },
     save: function (spider) {
-      localStorage.setItem(SPIDER_STORAGE_KEY, JSON.stringify(spider))
+      sessionStorage.setItem(SPIDER_STORAGE_KEY, JSON.stringify(spider))
     }
   },
   tokenStorage: {
     fetch: function () {
-      let token = localStorage.getItem(TOKEN_STORAGE_KEY) || ''
+      let token = sessionStorage.getItem(TOKEN_STORAGE_KEY) || ''
       return token
     },
     save: function (token) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, token)
+      sessionStorage.setItem(TOKEN_STORAGE_KEY, token)
     }
   }
 }

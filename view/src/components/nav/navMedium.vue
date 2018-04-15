@@ -1,5 +1,5 @@
 <template>
-  <div id="nav-medium" class="uk-panel uk-panel-scrollable">
+  <div id="nav-medium" class="uk-overflow-auto uk-height-1-1">
     <h3 class=" uk-link-heading">
       <router-link to="/">WebOverdrive</router-link>
     </h3>

@@ -205,7 +205,7 @@ def search_spider():
 
     if not search_meta:
         length = db.spider.count()
-        found = db.spider.find().limit(3).skip(int(skip))
+        found = db.spider.find().limit(3).skip(int(skip)).sort('_id', -1)
         msg['message'] = 'OK: Finished query'
     else:
         search_meta = re.compile(search_meta, re.IGNORECASE)
@@ -222,7 +222,7 @@ def search_spider():
             }, {
                 'spider.description': search_meta
             }]
-        }).limit(3).skip(int(skip))
+        }).limit(3).skip(int(skip)).sort('_id', -1)
         msg['message'] = 'OK: Finished query'
 
     # append result to data
@@ -369,7 +369,7 @@ def list_crawl_data():
     }, {
         "data": 0,
         "spider_id": 0
-    })
+    }).sort('_id', -1)
 
     for item in found:
         msg['data'].append({

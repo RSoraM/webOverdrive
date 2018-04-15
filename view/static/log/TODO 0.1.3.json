@@ -4,19 +4,11 @@
     "info": "add token panel(token 0)"
   },
   {
-    "type": "fixed",
-    "info": "中文爬虫不能运行"
-  },
-  {
     "type": "changed",
     "info": "优化搜索"
   },
   {
     "type": "changed",
-    "info": "优化后端结构"
-  },
-  {
-    "type": "fixed",
-    "info": "搜索移动端界面显示异常"
+    "info": "修改 Handel 结构"
   }
 ]

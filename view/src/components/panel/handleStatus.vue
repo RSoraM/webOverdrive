@@ -83,7 +83,7 @@ export default {
     sleep: function (sec) {
       return new Promise(resolve => setTimeout(resolve, sec * 1000))
     },
-    updateStatus: async function () {
+    updateStatus: async function (isRec = false) {
       await axios({
         method: 'POST',
         url: this.url + '/getStatus',
@@ -104,8 +104,8 @@ export default {
 
       if (this.running) {
         await this.sleep(3)
-        await this.updateStatus()
-      } else {
+        await this.updateStatus(isRec = true)
+      } else if (!this.running && isRec) {
         this.$emit('updateDownloadList')
       }
     },

@@ -6,5 +6,13 @@
   {
     "type": "fixed",
     "info": "搜索移动端界面显示异常"
+  },
+  {
+    "type": "changed",
+    "info": "优化前端展示"
+  },
+  {
+    "type": "fixed",
+    "info": "Auth twice"
   }
 ]

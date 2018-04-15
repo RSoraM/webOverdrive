@@ -101,8 +101,6 @@ export default {
       }, function () {})
     },
     getData: async function () {
-      console.log(this.fileId)
-
       let msg = {}
       await axios({
         method: 'POST',
@@ -119,7 +117,6 @@ export default {
         })
         .then(response => {
           msg = response.data
-          util.notification(msg)
         })
 
       return msg

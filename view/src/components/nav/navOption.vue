@@ -30,7 +30,6 @@ export default {
   data: function () {
     return {
       routers: route,
-      url: util.apiUrl,
       token: util.tokenStorage.fetch()
     }
   },
@@ -39,7 +38,6 @@ export default {
     token: {
       handler: function (token) {
         util.tokenStorage.save(token)
-        this.authToken(token)
       },
       deep: true
     }
@@ -51,7 +49,7 @@ export default {
 
       axios({
         method: 'POST',
-        url: this.url + '/auth',
+        url: util.apiUrl + '/auth',
         data: Qs.stringify({
           token: this.token
         }),
@@ -77,9 +75,11 @@ export default {
   .uk-form-blank {
     background-color: hsl(210, 9%, 96%);
   }
+
   @media screen and (max-width: 960px) {
     .uk-form-blank {
       background-color: inherit
     }
   }
+
 </style>

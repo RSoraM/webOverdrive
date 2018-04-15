@@ -3,7 +3,7 @@
     <div class="uk-grid-small" uk-grid>
 
       <!-- Nav PC -->
-      <div v-if="width > 960" id="wo-1-4" class="uk-width-1-5 uk-visible@m">
+      <div v-if="width >= 960" id="wo-1-4" class="uk-width-1-5 uk-visible@m">
         <nav-medium class="uk-padding"></nav-medium>
       </div>
 
@@ -13,19 +13,19 @@
       </div>
 
       <!-- view -->
-      <div class="uk-width-4-5@m">
+      <div class="uk-width-4-5@m uk-margin-remove-top">
         <div class="uk-grid-small uk-child-width-1-3@m" uk-grid>
 
           <!-- vue route -->
           <router-view id="wo-2-4" class="uk-padding" :spider='spider' @spiderOnFocus='spiderOnFocus' />
 
           <!-- Detail PC -->
-          <div v-if="width > 960" id="wo-3-4" class="uk-padding uk-visible@m uk-panel uk-panel-scrollable">
+          <div v-if="width > 960" id="wo-3-4" class="uk-padding uk-visible@m uk-overflow-auto uk-height-1-1">
             <detail v-if="!EmptySpider" :spider="spider"></detail>
           </div>
 
           <!-- Handle PC -->
-          <div v-if="width > 960" id="wo-4-4" class="uk-padding uk-visible@m uk-panel uk-panel-scrollable">
+          <div v-if="width > 960" id="wo-4-4" class="uk-padding uk-visible@m uk-overflow-auto uk-height-1-1">
             <handle v-if="!EmptySpider" :spider="spider"></handle>
           </div>
 
