@@ -14,5 +14,9 @@
   {
     "type": "fixed",
     "info": "Auth twice"
+  },
+  {
+    "type": "changed",
+    "info": "修改 Handel 结构"
   }
 ]

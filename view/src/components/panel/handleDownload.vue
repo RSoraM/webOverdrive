@@ -40,9 +40,7 @@ export default {
   name: 'handle-download',
   data: function () {
     return {
-      fileId: '',
-      token: util.tokenStorage.fetch(),
-      url: util.apiUrl
+      fileId: ''
     }
   },
   props: ['downloadList', 'spider'],
@@ -76,14 +74,14 @@ export default {
       UIkit.modal.confirm(
         '<h2 class="uk-modal-title">Are you Sure?</h2><p>This Operation Will Delete This Data On Database.</p>'
       ).then(function () {
-        that.token = util.tokenStorage.fetch()
+        let token = util.tokenStorage.fetch()
 
         axios({
           method: 'POST',
-          url: that.url + '/rmCrawlData',
+          url: util.apiUrl + '/rmCrawlData',
           data: Qs.stringify({
             id: that.fileId,
-            token: that.token
+            token: token
           }),
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -96,7 +94,7 @@ export default {
             let msg = response.data
             util.notification(msg)
             that.$emit('updatePreviewData', [])
-            that.$emit('updateDownloadList')
+            that.$emit('queryDownloadList')
           })
       }, function () {})
     },
@@ -104,7 +102,7 @@ export default {
       let msg = {}
       await axios({
         method: 'POST',
-        url: this.url + '/dlCrawlData',
+        url: util.apiUrl + '/dlCrawlData',
         data: Qs.stringify({
           id: this.fileId
         }),

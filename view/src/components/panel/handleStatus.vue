@@ -9,23 +9,18 @@
         <tr>
           <td>Lasted Crawl:</td>
           <td>
-            <span>{{downloadList.length?downloadList[0].date:'Never run.'}}</span>
+            <span v-html="lastedCrawl"></span>
           </td>
         </tr>
         <tr>
           <td>Status:</td>
           <td>
-            <span v-show="running">
-              <span uk-spinner></span> Running...
-            </span>
-            <span v-show="!running">
-              Runable
-            </span>
+            <span v-html="status"></span>
           </td>
         </tr>
       </tbody>
     </table>
-    <div class="uk-child-width-1-1 uk-text-right" uk-grid>
+    <div v-if="!running" class="uk-child-width-1-1 uk-text-right" uk-grid>
       <div class="uk-margin">
         <button class="uk-button uk-button-default">More</button>
         <div class="uk-text-left" uk-dropdown="mode: click">
@@ -60,11 +55,11 @@ export default {
   data: function () {
     return {
       running: false,
-      token: util.tokenStorage.fetch(),
-      url: util.apiUrl
+      status: '<span uk-spinner></span> Querying...',
+      lastedCrawl: '<span uk-spinner></span> Querying...'
     }
   },
-  props: ['spider', 'downloadList'],
+  props: ['spider'],
 
   created: function () {
     this.updateStatus()
@@ -83,10 +78,12 @@ export default {
     sleep: function (sec) {
       return new Promise(resolve => setTimeout(resolve, sec * 1000))
     },
-    updateStatus: async function (isRec = false) {
-      await axios({
+    updateDownloadList: function () {
+      this.lastedCrawl = '<span uk-spinner></span> Querying...'
+
+      axios({
         method: 'POST',
-        url: this.url + '/getStatus',
+        url: util.apiUrl + '/listCrawlData',
         data: Qs.stringify({
           id: this.spider.id
         }),
@@ -95,18 +92,59 @@ export default {
         }
       })
         .catch(err => {
+          this.lastedCrawl = 'ERR.'
           util.notification(err)
         })
         .then(response => {
-          let message = response.data
-          this.running = message['data']
-        })
+          let msg = response.data
+          if (msg['data'].length > 0) {
+            this.lastedCrawl = msg['data'][0]['date']
+          } else {
+            this.lastedCrawl = 'Never run'
+          }
 
-      if (this.running) {
+          this.$emit('updateDownloadList', msg['data'])
+        })
+    },
+    updateStatus: async function (isCall = false) {
+      this.status = '<span uk-spinner></span> Querying...'
+
+      if (!isCall) {
+        this.updateDownloadList()
+      }
+
+      let count = 0
+      do {
+        await axios({
+          method: 'POST',
+          url: util.apiUrl + '/getStatus',
+          data: Qs.stringify({
+            id: this.spider.id
+          }),
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
+          .catch(err => {
+            this.status = 'ERR.'
+            util.notification(err)
+          })
+          .then(response => {
+            let message = response.data
+            this.running = message['data']
+
+            if (this.running) {
+              this.status = 'Running...'
+            } else {
+              this.status = 'Runable'
+            }
+          })
+        count++
         await this.sleep(3)
-        await this.updateStatus(isRec = true)
-      } else if (!this.running && isRec) {
-        this.$emit('updateDownloadList')
+      } while (this.running)
+
+      if (count > 1) {
+        this.updateDownloadList()
       }
     },
     editSpider: function () {
@@ -128,13 +166,13 @@ export default {
         )
         .then(
           function () {
-            that.token = util.tokenStorage.fetch()
+            let token = util.tokenStorage.fetch()
             axios({
               method: 'POST',
-              url: that.url + '/rmSpider',
+              url: util.apiUrl + '/rmSpider',
               data: Qs.stringify({
                 id: that.spider.id,
-                token: that.token
+                token: token
               }),
               header: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -152,14 +190,14 @@ export default {
         )
     },
     crawlData: function () {
-      this.token = util.tokenStorage.fetch()
+      let token = util.tokenStorage.fetch()
 
       axios({
         method: 'POST',
-        url: this.url + '/crawlData',
+        url: util.apiUrl + '/crawlData',
         data: Qs.stringify({
           id: this.spider.id,
-          token: this.token
+          token: token
         }),
         header: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -172,7 +210,7 @@ export default {
           let message = response.data
 
           util.notification(message)
-          this.updateStatus()
+          this.updateStatus(true)
         })
     }
   }
@@ -181,8 +219,9 @@ export default {
 </script>
 
 <style scoped>
-td {
-  padding-left: 0px;
-  padding-right: 0px;
-}
+  td {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
 </style>
