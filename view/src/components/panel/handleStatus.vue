@@ -20,6 +20,22 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="uk-margin" uk-margin>
+      <a class="uk-link-heading advance-setting" uk-toggle="target: .advance-setting">
+        Advance Setting <span uk-icon="triangle-down"></span>
+      </a>
+      <a class="uk-link-heading advance-setting" uk-toggle="target: .advance-setting" hidden>
+        Advance Setting <span uk-icon="triangle-up"></span>
+      </a>
+      <div class="advance-setting uk-animation-fade" hidden>
+        <span>User-Agent:</span>
+        <input v-model="setting.userAgent" type="text" class="uk-input" placeholder="User-Agent">
+        <span>Delay:</span>
+        <input v-model="setting.delay" type="number" class="uk-input" placeholder="Delay">
+      </div>
+    </div>
+
     <div v-if="!running" class="uk-child-width-1-1 uk-text-right" uk-grid>
       <div class="uk-margin">
         <button class="uk-button uk-button-default">More</button>
@@ -54,6 +70,10 @@ export default {
   name: 'handle-status',
   data: function () {
     return {
+      setting: {
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
+        delay: 3
+      },
       running: false,
       status: '<span uk-spinner></span> Querying...',
       lastedCrawl: '<span uk-spinner></span> Querying...'
@@ -197,6 +217,7 @@ export default {
         url: util.apiUrl + '/crawlData',
         data: Qs.stringify({
           id: this.spider.id,
+          setting: this.setting,
           token: token
         }),
         header: {

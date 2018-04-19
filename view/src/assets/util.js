@@ -3,7 +3,6 @@ import api from './setting'
 
 let SPIDER_STORAGE_KEY = 'wo-spider'
 let TOKEN_STORAGE_KEY = 'wo-token'
-let SEARCH_CACHE_KEY = 'wo-cache'
 
 export default {
   apiUrl: api,
@@ -32,18 +31,6 @@ export default {
         message: message.message,
         status: 'danger'
       })
-    }
-  },
-  searchCache: {
-    fetch: function () {
-      let empty = []
-      let cache = JSON.parse(
-        localStorage.getItem(SEARCH_CACHE_KEY) || JSON.stringify(empty)
-      )
-      return cache
-    },
-    save: function (spider) {
-      localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify(spider))
     }
   },
   spiderStorage: {

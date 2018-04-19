@@ -11,8 +11,8 @@
     <li class="uk-margin-small">
       <input v-model.lazy.trim="token" type="text" class="uk-form-blank uk-input" placeholder="Enter your token">
     </li>
-    <li class="uk-margin-small">
-      <button @click="authToken" class="uk-button uk-button-primary uk-align-right">Auth</button>
+    <li class="uk-margin-small uk-text-right">
+      <button @click="authToken" class="uk-button uk-button-primary">Auth</button>
     </li>
   </ul>
 </template>

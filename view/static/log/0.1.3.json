@@ -18,5 +18,9 @@
   {
     "type": "changed",
     "info": "修改 Handel 结构"
+  },
+  {
+    "type": "fixed",
+    "info": "修复鉴权函数严重缺陷"
   }
 ]
