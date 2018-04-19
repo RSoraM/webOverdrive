@@ -11,8 +11,8 @@
     <li class="uk-margin-small">
       <input v-model.lazy.trim="token" type="text" class="uk-form-blank uk-input" placeholder="Enter your token">
     </li>
-    <li class="uk-margin-small">
-      <button @click="authToken" class="uk-button uk-button-primary uk-align-right">Auth</button>
+    <li class="uk-margin-small uk-text-right">
+      <button @click="authToken" class="uk-button uk-button-primary">Auth</button>
     </li>
   </ul>
 </template>
@@ -30,7 +30,6 @@ export default {
   data: function () {
     return {
       routers: route,
-      url: util.apiUrl,
       token: util.tokenStorage.fetch()
     }
   },
@@ -39,7 +38,6 @@ export default {
     token: {
       handler: function (token) {
         util.tokenStorage.save(token)
-        this.authToken(token)
       },
       deep: true
     }
@@ -51,7 +49,7 @@ export default {
 
       axios({
         method: 'POST',
-        url: this.url + '/auth',
+        url: util.apiUrl + '/auth',
         data: Qs.stringify({
           token: this.token
         }),
@@ -77,9 +75,11 @@ export default {
   .uk-form-blank {
     background-color: hsl(210, 9%, 96%);
   }
+
   @media screen and (max-width: 960px) {
     .uk-form-blank {
       background-color: inherit
     }
   }
+
 </style>

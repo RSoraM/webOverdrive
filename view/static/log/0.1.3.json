@@ -1,0 +1,26 @@
+[
+  {
+    "type": "fixed",
+    "info": "中文爬虫不能运行"
+  },
+  {
+    "type": "fixed",
+    "info": "搜索移动端界面显示异常"
+  },
+  {
+    "type": "changed",
+    "info": "优化前端展示"
+  },
+  {
+    "type": "fixed",
+    "info": "Auth twice"
+  },
+  {
+    "type": "changed",
+    "info": "修改 Handel 结构"
+  },
+  {
+    "type": "fixed",
+    "info": "修复鉴权函数严重缺陷"
+  }
+]

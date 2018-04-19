@@ -1,3 +1,4 @@
+# coding=utf-8
 import time
 from multiprocessing import Process, Queue
 
@@ -23,16 +24,10 @@ class WebOverdrive(object):
         self.p = Process(target=self.worker, args=(_task_queue, ))
         self.p.daemon = True
         self.p.start()
-        print "%s WebOverdrive: %s" % (woTime.now(), "Inited")
 
     def worker(self, queue):
         while True:
-            print "%s WebOverdrive: Waiting" % woTime.now()
             spider = queue.get()
-
-            print "%s WebOverdrive: %s" % (
-                woTime.now(),
-                "Run Spider <%s>" % spider.get("spider").get("name"))
 
             file_id = db.crawl_data.insert_one({
                 "spider_id":
@@ -48,9 +43,6 @@ class WebOverdrive(object):
             }})
 
     def add(self, spider):
-        print "%s WebOverdrive: %s" % (
-            woTime.now(),
-            "Add Spider <%s> in queue" % spider.get("spider").get("name"))
         db.spider.find_one_and_update({
             "_id": ObjectId(spider.get("_id"))
         }, {"$set": {
@@ -63,8 +55,6 @@ class WebOverdrive(object):
         time.sleep(self.setting.getDelay())
 
         # download pages
-        print "%s WebOverdrive: %s" % (woTime.now(),
-                                       "Downloading <%s>" % spider.get("url"))
         html = requests.get(spider["url"], headers=self.setting.getHeader())
         html.encoding = 'utf-8'
         soup = BeautifulSoup(html.text, "lxml")
@@ -73,8 +63,6 @@ class WebOverdrive(object):
         read.append(spider["url"])
 
         # save raw pages
-        print "%s WebOverdrive: %s" % (
-            woTime.now(), "Save <%s> in Database" % spider.get("url"))
         db.crawl_data.find_one_and_update({
             "_id": ObjectId(file_id)
         }, {'$push': {

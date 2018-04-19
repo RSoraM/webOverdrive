@@ -1,15 +1,15 @@
 <template>
-  <div class="uk-panel uk-panel-scrollable">
+  <div class="uk-overflow-auto uk-height-1-1">
     <h3 class="uk-heading-bullet">Search</h3>
     <ul uk-switcher="connect: .searchSmall;" class="uk-tab uk-hidden@m">
       <li>
         <a href="">search</a>
       </li>
       <li v-if="width < 960">
-        <a href="">detail</a>
+        <a v-if="!EmptySpider" href="">detail</a>
       </li>
       <li v-if="width < 960">
-        <a href="">Panel</a>
+        <a v-if="!EmptySpider" href="">Panel</a>
       </li>
     </ul>
     <ul class="uk-switcher searchSmall">
@@ -18,10 +18,10 @@
             @getSearchResults='getSearchResults'></search-form>
         <search-result v-for="item in searchResult" v-bind:key="item.id" :item="item" @spiderOnFocus='spiderOnFocus'></search-result>
       </li>
-      <li class="uk-hidden@m" v-if="width < 960">
+      <li v-if="width < 960">
         <detail v-if="!EmptySpider" :spider="spider"></detail>
       </li>
-      <li class="uk-hidden@m" v-if="width < 960">
+      <li v-if="width < 960">
         <handle v-if="!EmptySpider" :spider="spider"></handle>
       </li>
     </ul>
@@ -71,7 +71,7 @@ export default {
 </script>
 
 <style scoped>
-  .uk-panel {
+  .uk-overflow-auto {
     border-top: #207394 3px solid;
   }
 

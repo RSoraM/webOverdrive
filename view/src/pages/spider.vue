@@ -1,5 +1,5 @@
 <template>
-  <div class="uk-panel uk-panel-scrollable">
+  <div class="uk-overflow-auto uk-height-1-1">
 
     <h3 class="uk-heading-bullet">{{status}}</h3>
 
@@ -34,7 +34,7 @@ export default {
 </script>
 
 <style scoped>
-  .uk-panel {
+  .uk-overflow-auto {
     border-top: #FFA72A 3px solid;
   }
 </style>

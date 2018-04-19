@@ -25,11 +25,11 @@ def available_test():
     if request.method == 'GET':
         msg['data'] = 'GET Available.'
         msg_id = db.test.insert_one(msg).inserted_id
-        msg['message'] = 'OK: ' + msg_id
+        msg['message'] = 'OK: ' + str(msg_id)
     else:
         msg['data'] = 'POST Available.'
         msg_id = db.test.insert_one(msg).inserted_id
-        msg['message'] = 'OK: ' + msg_id
+        msg['message'] = 'OK: ' + str(msg_id)
 
     return dumps(msg)
 
@@ -98,7 +98,7 @@ def add_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] <= 2:
+    if auth['status'] != 200 or auth['data']['level'] > 2:
         return dumps(auth)
 
     # Legal?
@@ -134,7 +134,7 @@ def rm_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] <= 1:
+    if auth['status'] != 200 or auth['data']['level'] > 1:
         return dumps(auth)
 
     found = db.spider.find_one_and_delete({'_id': ObjectId(spider_id)})
@@ -159,7 +159,7 @@ def edit_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] <= 1:
+    if auth['status'] != 200 or auth['data']['level'] > 1:
         return dumps(auth)
 
     # Legal?
@@ -205,7 +205,7 @@ def search_spider():
 
     if not search_meta:
         length = db.spider.count()
-        found = db.spider.find().limit(3).skip(int(skip))
+        found = db.spider.find().limit(3).skip(int(skip)).sort('_id', -1)
         msg['message'] = 'OK: Finished query'
     else:
         search_meta = re.compile(search_meta, re.IGNORECASE)
@@ -222,7 +222,7 @@ def search_spider():
             }, {
                 'spider.description': search_meta
             }]
-        }).limit(3).skip(int(skip))
+        }).limit(3).skip(int(skip)).sort('_id', -1)
         msg['message'] = 'OK: Finished query'
 
     # append result to data
@@ -277,10 +277,7 @@ def getStatus():
 
 # Crawl Data Add(run spider) Remove List Download
 # TODO
-# JS, rawPage
-# BUG
-# Data stay
-# Add Crawl Data(run spider)
+# JS
 # auth: level <= 3
 @application.route('/crawlData', methods=['POST'])
 def add_crawl_task():
@@ -290,7 +287,7 @@ def add_crawl_task():
 
     # Auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] <= 3:
+    if auth['status'] != 200 or auth['data']['level'] > 3:
         return dumps(auth)
 
     # Form check
@@ -329,7 +326,7 @@ def rm_crawl_data():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] <= 2:
+    if auth['status'] != 200 or auth['data']['level'] > 2:
         return dumps(auth)
 
     # form check
@@ -369,7 +366,7 @@ def list_crawl_data():
     }, {
         "data": 0,
         "spider_id": 0
-    })
+    }).sort('_id', -1)
 
     for item in found:
         msg['data'].append({
