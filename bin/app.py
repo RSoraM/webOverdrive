@@ -365,6 +365,7 @@ def list_crawl_data():
         "spider_id": ObjectId(spider_id)
     }, {
         "data": 0,
+        "raw_pages": 0,
         "spider_id": 0
     }).sort('_id', -1)
 
