@@ -2,5 +2,9 @@
   {
     "type": "changed",
     "info": "列表获取优化，减少数据量"
+  },
+  {
+    "type": "added",
+    "info": "权限错误提示"
   }
 ]

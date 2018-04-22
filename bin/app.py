@@ -37,7 +37,7 @@ def available_test():
 # Token Level:
 # Level Right
 # 0     Everything
-# 1     Spider +-   Data +-
+# 1     Spider +-   Data +- 
 # 2     Spider +    Data +-
 # 3     Spider n/a  Data +
 @application.route('/auth', methods=['POST'])
@@ -98,7 +98,11 @@ def add_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 2:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 2:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # Legal?
@@ -134,7 +138,11 @@ def rm_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 1:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 1:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     found = db.spider.find_one_and_delete({'_id': ObjectId(spider_id)})
@@ -159,7 +167,11 @@ def edit_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 1:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 1:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # Legal?
@@ -287,7 +299,11 @@ def add_crawl_task():
 
     # Auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 3:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 3:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # Form check
@@ -326,7 +342,11 @@ def rm_crawl_data():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 2:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 2:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # form check
