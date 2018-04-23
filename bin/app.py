@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 from lib import Time as woTime
 from lib.db import get_db
-from lib.WebOverdrive import WebOverdrive
+from lib.WebOverdrive import WebOverdrive 
 
 db = get_db()
 spider = WebOverdrive()
@@ -37,7 +37,7 @@ def available_test():
 # Token Level:
 # Level Right
 # 0     Everything
-# 1     Spider +-   Data +- 
+# 1     Spider +-   Data +-
 # 2     Spider +    Data +-
 # 3     Spider n/a  Data +
 @application.route('/auth', methods=['POST'])
@@ -296,6 +296,7 @@ def add_crawl_task():
     # None Data
     msg = {'status': 200, 'message': 'OK.', 'data': None}
     spider_id = request.form['id']
+    advance_setting = json.loads(request.form['setting'])
 
     # Auth
     auth = json.loads(token_auth())
@@ -325,7 +326,7 @@ def add_crawl_task():
         msg['message'] = 'Warning: Spider is running'
 
     # Add spider in queue
-    spider.add(found)
+    spider.add(found, advance_setting)
 
     msg['message'] = 'OK: Add Spider in queue'
 

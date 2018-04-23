@@ -6,5 +6,13 @@
   {
     "type": "added",
     "info": "权限错误提示"
+  },
+  {
+    "type": "added",
+    "info": "可设置地运行爬虫"
+  },
+  {
+    "type": "changed",
+    "info": "爬虫运行优化，多线程方式"
   }
 ]
