@@ -1,7 +1,7 @@
 # coding=utf-8
 import os
 import time
-from multiprocessing import Pool, Manager, Queue
+from multiprocessing import Pool, Manager, Queue, Process
 
 import requests
 from bs4 import BeautifulSoup
@@ -57,8 +57,6 @@ def worker(queue):
 
 
 def run(spider, file_id, setting, read=[]):
-    time.sleep(setting.getDelay())
-
     # download pages
     html = requests.get(spider["url"], headers=setting.getHeader())
     html.encoding = 'utf-8'
@@ -119,6 +117,7 @@ def run(spider, file_id, setting, read=[]):
             return
 
         spider["url"] = seed_url
+        time.sleep(setting.getDelay())
         run(spider, file_id, setting, read)
 
     return

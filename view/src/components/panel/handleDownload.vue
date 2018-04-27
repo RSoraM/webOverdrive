@@ -62,6 +62,7 @@ export default {
     downloadList: {
       handler: function () {
         this.fileId = ''
+        this.status = []
       },
       deep: true
     }
@@ -71,35 +72,41 @@ export default {
     delData: function () {
       let that = this
 
-      UIkit.modal.confirm(
-        '<h2 class="uk-modal-title">Are you Sure?</h2><p>This Operation Will Delete This Data On Database.</p>'
-      ).then(function () {
-        let token = util.tokenStorage.fetch()
+      UIkit.modal
+        .confirm(
+          '<h2 class="uk-modal-title">Are you Sure?</h2><p>This Operation Will Delete This Data On Database.</p>'
+        )
+        .then(
+          function () {
+            let token = util.tokenStorage.fetch()
 
-        axios({
-          method: 'POST',
-          url: util.apiUrl + '/rmCrawlData',
-          data: Qs.stringify({
-            id: that.fileId,
-            token: token
-          }),
-          header: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        })
-          .catch(err => {
-            util.notification(err)
-          })
-          .then(response => {
-            let msg = response.data
-            util.notification(msg)
-            that.$emit('updatePreviewData', [])
-            that.$emit('queryDownloadList')
-          })
-      }, function () {})
+            axios({
+              method: 'POST',
+              url: util.apiUrl + '/rmCrawlData',
+              data: Qs.stringify({
+                id: that.fileId,
+                token: token
+              }),
+              header: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              }
+            })
+              .catch(err => {
+                util.notification(err)
+              })
+              .then(response => {
+                let msg = response.data
+                util.notification(msg)
+                that.$emit('updatePreviewData', [])
+                that.$emit('queryDownloadList')
+              })
+          },
+          function () {}
+        )
     },
     getData: async function () {
       let msg = {}
+
       await axios({
         method: 'POST',
         url: util.apiUrl + '/dlCrawlData',
@@ -115,6 +122,7 @@ export default {
         })
         .then(response => {
           msg = response.data
+          util.notification(msg)
         })
 
       return msg
@@ -132,6 +140,16 @@ export default {
       document.body.removeChild(link)
     },
     previewData: async function () {
+      // form check
+      if (!this.fileId) {
+        let msg = {
+          status: 500,
+          message: 'Error: Select a file'
+        }
+        util.notification(msg)
+        return 0
+      }
+
       let msg = await this.getData()
       this.$emit('updatePreviewData', msg['data'])
     },
@@ -153,7 +171,10 @@ export default {
         let csv = Papa.unparse(JSON.stringify(data))
         this.toFile(csv, this.filename + '.' + fileTpye)
       } else if (fileTpye === 'json') {
-        this.toFile(JSON.stringify(data, null, 2), this.filename + '.' + fileTpye)
+        this.toFile(
+          JSON.stringify(data, null, 2),
+          this.filename + '.' + fileTpye
+        )
       }
     }
   }

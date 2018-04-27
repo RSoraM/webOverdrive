@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 from lib import Time as woTime
 from lib.db import get_db
-from lib.WebOverdrive import WebOverdrive 
+from lib.WebOverdrive import WebOverdrive
 
 db = get_db()
 spider = WebOverdrive()
@@ -414,7 +414,12 @@ def dl_crawl_data():
         msg['message'] = 'Error: Select a file, please'
         return dumps(msg)
 
-    found = db.crawl_data.find_one({'_id': ObjectId(file_id)})
+    found = db.crawl_data.find_one({
+        '_id': ObjectId(file_id)
+    }, {
+        "raw_pages": 0,
+        "spider_id": 0
+    })
 
     if not found:
         msg['status'] = 500

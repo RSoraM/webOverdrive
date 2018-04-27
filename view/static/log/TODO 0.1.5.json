@@ -2,5 +2,17 @@
   {
     "type": "added",
     "info": "加入无头浏览器爬取由类似 vue 生成的内容"
+  },
+  {
+    "type": "changed",
+    "info": "爬虫状态表示，未运行，等待队列，爬取中"
+  },
+  {
+    "type": "changed",
+    "info": "爬虫运行结构修改"
+  },
+  {
+    "type": "added",
+    "info": "raw pages 查看"
   }
 ]
