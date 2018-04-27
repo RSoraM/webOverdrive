@@ -1,0 +1,22 @@
+[
+  {
+    "type": "changed",
+    "info": "列表获取优化，减少数据量"
+  },
+  {
+    "type": "changed",
+    "info": "文件下载优化，减少数据量"
+  },
+  {
+    "type": "added",
+    "info": "权限错误提示"
+  },
+  {
+    "type": "added",
+    "info": "可设置地运行爬虫"
+  },
+  {
+    "type": "changed",
+    "info": "爬虫运行优化，多线程方式"
+  }
+]

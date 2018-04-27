@@ -98,7 +98,11 @@ def add_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 2:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 2:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # Legal?
@@ -134,7 +138,11 @@ def rm_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 1:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 1:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     found = db.spider.find_one_and_delete({'_id': ObjectId(spider_id)})
@@ -159,7 +167,11 @@ def edit_spider():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 1:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 1:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # Legal?
@@ -284,10 +296,15 @@ def add_crawl_task():
     # None Data
     msg = {'status': 200, 'message': 'OK.', 'data': None}
     spider_id = request.form['id']
+    advance_setting = json.loads(request.form['setting'])
 
     # Auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 3:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 3:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # Form check
@@ -309,7 +326,7 @@ def add_crawl_task():
         msg['message'] = 'Warning: Spider is running'
 
     # Add spider in queue
-    spider.add(found)
+    spider.add(found, advance_setting)
 
     msg['message'] = 'OK: Add Spider in queue'
 
@@ -326,7 +343,11 @@ def rm_crawl_data():
 
     # auth
     auth = json.loads(token_auth())
-    if auth['status'] != 200 or auth['data']['level'] > 2:
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 2:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
         return dumps(auth)
 
     # form check
@@ -365,6 +386,7 @@ def list_crawl_data():
         "spider_id": ObjectId(spider_id)
     }, {
         "data": 0,
+        "raw_pages": 0,
         "spider_id": 0
     }).sort('_id', -1)
 
@@ -392,7 +414,12 @@ def dl_crawl_data():
         msg['message'] = 'Error: Select a file, please'
         return dumps(msg)
 
-    found = db.crawl_data.find_one({'_id': ObjectId(file_id)})
+    found = db.crawl_data.find_one({
+        '_id': ObjectId(file_id)
+    }, {
+        "raw_pages": 0,
+        "spider_id": 0
+    })
 
     if not found:
         msg['status'] = 500

@@ -22,17 +22,14 @@
     </table>
 
     <div class="uk-margin" uk-margin>
-      <a class="uk-link-heading advance-setting" uk-toggle="target: .advance-setting">
-        Advance Setting <span uk-icon="triangle-down"></span>
-      </a>
-      <a class="uk-link-heading advance-setting" uk-toggle="target: .advance-setting" hidden>
-        Advance Setting <span uk-icon="triangle-up"></span>
-      </a>
-      <div class="advance-setting uk-animation-fade" hidden>
+      <label>
+        <input v-model="advanceSetting" name="advanceSetting" type="checkbox" class="uk-checkbox"> Advance Setting
+      </label>
+      <div v-if="advanceSetting">
         <span>User-Agent:</span>
-        <input v-model="setting.userAgent" type="text" class="uk-input" placeholder="User-Agent">
+        <input v-model="setting.headers['user-agent']" type="text" class="uk-input" placeholder="User-Agent">
         <span>Delay:</span>
-        <input v-model="setting.delay" type="number" class="uk-input" placeholder="Delay">
+        <input v-model.number="setting.delay" type="number" class="uk-input" placeholder="Delay">
       </div>
     </div>
 
@@ -70,8 +67,11 @@ export default {
   name: 'handle-status',
   data: function () {
     return {
+      advanceSetting: false,
       setting: {
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
+        },
         delay: 3
       },
       running: false,
@@ -217,7 +217,7 @@ export default {
         url: util.apiUrl + '/crawlData',
         data: Qs.stringify({
           id: this.spider.id,
-          setting: this.setting,
+          setting: JSON.stringify(this.advanceSetting ? this.setting : {}),
           token: token
         }),
         header: {
