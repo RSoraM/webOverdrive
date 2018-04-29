@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div v-if="!running" class="uk-child-width-1-1 uk-text-right" uk-grid>
+    <div v-if="status === 'Runable'" class="uk-child-width-1-1 uk-text-right" uk-grid>
       <div class="uk-margin">
         <button class="uk-button uk-button-default">More</button>
         <div class="uk-text-left" uk-dropdown="mode: click">
@@ -74,7 +74,6 @@ export default {
         },
         delay: 3
       },
-      running: false,
       status: '<span uk-spinner></span> Querying...',
       lastedCrawl: '<span uk-spinner></span> Querying...'
     }
@@ -151,17 +150,17 @@ export default {
           })
           .then(response => {
             let message = response.data
-            this.running = message['data']
-
-            if (this.running) {
-              this.status = 'Running...'
-            } else {
-              this.status = 'Runable'
-            }
+            this.status = message['data']
           })
+
+        if (!this.status) {
+          this.status = 'ERR.'
+          break
+        }
+
         count++
         await this.sleep(3)
-      } while (this.running)
+      } while (this.status !== 'Runable')
 
       if (count > 1) {
         this.updateDownloadList()

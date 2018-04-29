@@ -151,6 +151,9 @@ export default {
       }
 
       let msg = await this.getData()
+      if (!msg['data']) {
+        msg['data'] = []
+      }
       this.$emit('updatePreviewData', msg['data'])
     },
     downloadData: async function (fileTpye) {

@@ -4,8 +4,12 @@
     "info": "加入无头浏览器爬取由类似 vue 生成的内容"
   },
   {
-    "type": "changed",
-    "info": "爬虫状态表示，未运行，等待队列，爬取中"
+    "type": "added",
+    "info": "停止爬虫"
+  },
+  {
+    "type": "added",
+    "info": "添加爬取条目限制"
   },
   {
     "type": "changed",

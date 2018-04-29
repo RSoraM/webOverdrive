@@ -12,7 +12,7 @@ from lib.db import get_db
 from lib.WebOverdrive import WebOverdrive
 
 db = get_db()
-spider = WebOverdrive()
+spider = WebOverdrive(4)
 
 application = Flask(__name__)
 CORS(application)
@@ -259,7 +259,7 @@ def search_spider():
 # auth: level n/a
 @application.route('/getStatus', methods=['POST'])
 def getStatus():
-    # data is running? running : runable
+    # data is spider status
     msg = {'status': 200, 'message': 'OK.', 'data': ''}
 
     spider_id = request.form['id']
@@ -281,7 +281,7 @@ def getStatus():
         return dumps(msg)
 
     msg['message'] = 'OK: Get Spider Status'
-    msg['data'] = found['running']
+    msg['data'] = found.get('status')
 
     # feed back
     return dumps(msg)
@@ -321,9 +321,10 @@ def add_crawl_task():
         return dumps(msg)
 
     # Running?
-    if found.get("running"):
+    if found.get("status") != 'Runable':
         msg['status'] = 300
         msg['message'] = 'Warning: Spider is running'
+        return dumps(msg)
 
     # Add spider in queue
     spider.add(found, advance_setting)
@@ -426,5 +427,6 @@ def dl_crawl_data():
         msg['message'] = 'Error: Not such data'
     else:
         msg['message'] = 'OK: Found data'
-        msg['data'] = found['data']
+        msg['data'] = found.get('data')
+        
     return dumps(msg)
