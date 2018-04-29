@@ -15,120 +15,194 @@ db = get_db()
 
 
 class WebOverdrive(object):
-    def __init__(self, workers=2):
+    def __init__(self, task_workers=4, download_workers=4):
         self._task_queue = Manager().Queue()
-        pool = Pool(workers)
-        for i in range(0, workers):
-            pool.apply_async(worker, (self._task_queue, ))
-            print "task %s inited" % i
+        self._download_queue = Manager().Queue()
+        self._parse_queue = Manager().Queue()
+        self._finish_queue = Manager().Queue()
+
+        pool = Pool(task_workers + download_workers + 4)
+
+        for i in range(0, task_workers):
+            print "Init task worker%s" % i
+            pool.apply_async(task_worker,
+                             ({
+                                 "task_queue": self._task_queue,
+                                 "download_queue": self._download_queue
+                             }, ))
+
+        for i in range(0, download_workers):
+            print "Init download worker%s" % i
+            pool.apply_async(download_worker,
+                             ({
+                                 "download_queue": self._download_queue,
+                                 "parse_queue": self._parse_queue
+                             }, ))
+
+        print "Init parse worker"
+        pool.apply_async(parse_worker, ({
+            "parse_queue": self._parse_queue,
+            "finish_queue": self._finish_queue
+        }, ))
+
+        print "Init finish worker"
+        pool.apply_async(finish_worker, (self._finish_queue, ))
 
     def add(self, spider, task_setting={}):
-        db.spider.find_one_and_update({
-            "_id": ObjectId(spider.get("_id"))
-        }, {"$set": {
-            "running": True
-        }})
+        update_spider_status(spider.get("_id"), "Waiting...")
 
-        self._task_queue.put({
-            'spider': spider,
-            'setting': Setting(task_setting)
-        })
+        package = {
+            "spider_id": spider.get("_id"),
+            "spider": spider.get("spider"),
+            "file_id": "",
+            "setting": Setting(task_setting)
+        }
+        self._task_queue.put(package)
 
 
-def worker(queue):
-    print 'worker inited (%s)' % os.getpid()
+def task_worker(queues):
+    print 'task_worker inited (%s)' % os.getpid()
+
+    task_queue = queues.get("task_queue")
+    download_queue = queues.get("download_queue")
+
     while True:
-        task = queue.get()
-        spider = task.get('spider')
-        task_setting = task.get('setting')
+        package = task_queue.get()
+
+        spider_id = package.get("spider_id")
+
+        update_spider_status(spider_id, "Running...")
 
         file_id = db.crawl_data.insert_one({
-            "spider_id":
-            ObjectId(spider.get("_id"))
+            "spider_id": ObjectId(spider_id)
         }).inserted_id
 
-        run(spider.get("spider"), file_id, task_setting)
+        package["file_id"] = file_id
+        download_queue.put(package)
 
-        db.spider.find_one_and_update({
-            "_id": ObjectId(spider.get("_id"))
-        }, {"$set": {
-            "running": False
+
+def download_worker(queues):
+    print "downloader inited (%s)" % os.getpid()
+
+    download_queue = queues.get("download_queue")
+    parse_queue = queues.get("parse_queue")
+
+    while True:
+        package = download_queue.get()
+
+        spider = package.get("spider")
+        file_id = package.get("file_id")
+        setting = package.get("setting")
+
+        read = []
+        url = spider["url"]
+        next = spider["next"]
+
+        while url:
+            # url deduplication
+            read.append(url)
+
+            # download pages
+            try:
+                html = requests.get(url, headers=setting.getHeader())
+                html.encoding = "utf-8"
+            except:
+                print 'download error %s' % url
+                break
+
+            # tell parser
+            package["html"] = html.text
+            package["url"] = url
+            parse_queue.put(package)
+
+            # save raw pages
+            db.crawl_data.find_one_and_update({
+                "_id": ObjectId(file_id)
+            }, {"$push": {
+                "raw_pages": html.text
+            }})
+
+            # try get next pages
+            soup = BeautifulSoup(html.text, "lxml")
+            if next:
+                seed = soup.select(next)
+                if seed:
+                    try:
+                        url = seed[0].attrs["href"]
+                        if url not in read:
+                            time.sleep(setting.getDelay())
+                        else:
+                            url = None
+                    except KeyError:
+                        url = None
+                else:
+                    url = None
+            else:
+                url = None
+
+        # ending singal
+        package["finish"] = True
+        parse_queue.put(package)
+
+
+def parse_worker(queues):
+    print "parser inited (%s)" % os.getpid()
+
+    parse_queue = queues.get("parse_queue")
+    finish_queue = queues.get("finish_queue")
+
+    while True:
+        package = parse_queue.get()
+
+        if package.get("finish"):
+            finish_queue.put(package)
+            continue
+
+        spider = package.get("spider")
+        file_id = package.get("file_id")
+        html = package.get("html")
+        soup = BeautifulSoup(html, "lxml")
+
+        temp = []
+
+        # TODO check bug
+        for item in spider["items"]:
+            locals()[item["name"]] = soup.select(item["selector"])
+            for index, obj in enumerate(locals()[item["name"]]):
+                try:
+                    if item["attr"] != "text":
+                        temp[index][item["name"]] = obj.attrs[item["attr"]]
+                    else:
+                        temp[index][item["name"]] = obj.get_text()
+                except IndexError:
+                    temp.append({})
+                    if item["attr"] != "text":
+                        temp[index][item["name"]] = obj.attrs[item["attr"]]
+                    else:
+                        temp[index][item["name"]] = obj.get_text()
+
+        db.crawl_data.find_one_and_update({
+            "_id": ObjectId(file_id)
+        }, {"$addToSet": {
+            "data": {
+                "$each": temp
+            }
         }})
 
 
-def run(spider, file_id, setting, read=[]):
-    # download pages
-    html = requests.get(spider["url"], headers=setting.getHeader())
-    html.encoding = 'utf-8'
-    soup = BeautifulSoup(html.text, "lxml")
+def finish_worker(finish_queue):
+    print "closer inited (%s)" % os.getpid()
 
-    # url deduplication
-    read.append(spider["url"])
+    while True:
+        package = finish_queue.get()
 
-    # save raw pages
-    db.crawl_data.find_one_and_update({
-        "_id": ObjectId(file_id)
-    }, {'$push': {
-        "raw_pages": soup.prettify()
+        spider_id = package.get("spider_id")
+        update_spider_status(spider_id, "Runable")
+
+
+def update_spider_status(id, status):
+    db.spider.find_one_and_update({
+        "_id": ObjectId(id)
+    }, {"$set": {
+        "status": status
     }})
-
-    # guess running js
-
-    # parse data
-    temp = []
-    for item in spider["items"]:
-        locals()[item["name"]] = soup.select(item["selector"])
-        for index, obj in enumerate(locals()[item["name"]]):
-            try:
-                if item['attr'] != 'text':
-                    temp[index][item["name"]] = obj.attrs[item["attr"]]
-                else:
-                    temp[index][item["name"]] = obj.get_text()
-            except IndexError:
-                temp.append({})
-                if item['attr'] != 'text':
-                    temp[index][item["name"]] = obj.attrs[item["attr"]]
-                else:
-                    temp[index][item["name"]] = obj.get_text()
-
-    # append data
-    db.crawl_data.find_one_and_update({
-        "_id": ObjectId(file_id)
-    }, {"$addToSet": {
-        "data": {
-            "$each": temp
-        }
-    }})
-
-    # Recursive
-    if spider["next"] != '':
-        seed = soup.select(spider["next"])
-    else:
-        return
-
-    if seed:
-        try:
-            seed_url = seed[0].attrs["href"]
-        except KeyError:
-            seed_url = None
-            return
-
-        if seed_url in read:
-            return
-
-        spider["url"] = seed_url
-        time.sleep(setting.getDelay())
-        run(spider, file_id, setting, read)
-
-    return
-
-
-# delay
-# get html
-# add html to db
-# get soup
-# get data
-# if seed:
-#     recursive
-# esle:
-#     add data to db

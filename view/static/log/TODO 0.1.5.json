@@ -12,10 +12,6 @@
     "info": "添加爬取条目限制"
   },
   {
-    "type": "changed",
-    "info": "爬虫运行结构修改"
-  },
-  {
     "type": "added",
     "info": "raw pages 查看"
   }
