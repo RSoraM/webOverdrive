@@ -119,7 +119,10 @@ def add_spider():
             return dumps(msg)
 
     # save to db
-    spider_id = db.spider.insert_one({'spider': spider}).inserted_id
+    spider_id = db.spider.insert_one({
+        'spider': spider,
+        'status': 'Runable'
+    }).inserted_id
 
     # feed back
     msg['message'] = 'OK: Inserted spider'
@@ -428,5 +431,5 @@ def dl_crawl_data():
     else:
         msg['message'] = 'OK: Found data'
         msg['data'] = found.get('data')
-        
+
     return dumps(msg)
