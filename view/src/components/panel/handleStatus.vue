@@ -53,6 +53,10 @@
         <button class="uk-button uk-button-primary" @click="crawlData">Crawl</button>
       </div>
     </div>
+    <div v-if="status === 'Running...'" class="uk-child-width-1-1 uk-text-right" uk-grid>
+      <button class="uk-button uk-button-danger" @click="stopCrawl">Stop</button>
+      <button class="uk-button uk-button-primary">Pause</button>
+    </div>
   </div>
 </template>
 
@@ -70,7 +74,8 @@ export default {
       advanceSetting: false,
       setting: {
         headers: {
-          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
+          'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
         },
         delay: 3
       },
@@ -232,16 +237,38 @@ export default {
           util.notification(message)
           this.updateStatus(true)
         })
+    },
+    stopCrawl: function () {
+      let token = util.tokenStorage.fetch()
+
+      axios({
+        method: 'POST',
+        url: util.apiUrl + '/stopCrawl',
+        data: Qs.stringify({
+          id: this.spider.id,
+          token: token
+        }),
+        header: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+        .catch(err => {
+          util.notification(err)
+        })
+        .then(response => {
+          let message = response.data
+
+          util.notification(message)
+          this.updateStatus(true)
+        })
     }
   }
 }
-
 </script>
 
 <style scoped>
-  td {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-
+td {
+  padding-left: 0px;
+  padding-right: 0px;
+}
 </style>

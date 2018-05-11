@@ -12,7 +12,7 @@ from lib.db import get_db
 from lib.WebOverdrive import WebOverdrive
 
 db = get_db()
-spider = WebOverdrive(4)
+spider = WebOverdrive()
 
 application = Flask(__name__)
 CORS(application)
@@ -333,6 +333,50 @@ def add_crawl_task():
     spider.add(found, advance_setting)
 
     msg['message'] = 'OK: Add Spider in queue'
+
+    return dumps(msg)
+
+
+# Stop crawling data
+# auth: level <=3
+@application.route('/stopCrawl', methods=['POST'])
+def stop_crawl_task():
+    # None Data
+    msg = {'status': 200, 'message': 'OK.', 'data': None}
+    spider_id = request.form['id']
+
+    # Auth
+    auth = json.loads(token_auth())
+    if auth['status'] != 200:
+        return dumps(auth)
+    elif auth['data']['level'] > 3:
+        auth['status'] = 500
+        auth['message'] = 'Error: Insufficient permissions'
+        return dumps(auth)
+
+    # Form check
+    if not spider_id:
+        msg['status'] = 500,
+        msg['message'] = 'Error: Lack spider id'
+        return dumps(msg)
+
+    # Existed?
+    found = db.spider.find_one({"_id": ObjectId(spider_id)})
+    if not found:
+        msg['status'] = 500
+        msg['message'] = 'Error: Spider not found'
+        return dumps(msg)
+
+    # Running?
+    if found.get("status") == 'Runable':
+        msg['status'] = 300
+        msg['message'] = 'Warning: Spider is not running'
+        return dumps(msg)
+
+    # Stop spider
+    spider.stop(spider_id)
+
+    msg['message'] = 'OK: Try to stop Spider'
 
     return dumps(msg)
 

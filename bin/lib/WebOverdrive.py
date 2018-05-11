@@ -1,7 +1,7 @@
 # coding=utf-8
 import os
 import time
-from multiprocessing import Pool, Manager, Queue, Process
+from multiprocessing import Manager, Pool, Process, Queue
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,21 +15,19 @@ db = get_db()
 
 
 class WebOverdrive(object):
-    def __init__(self, task_workers=4, download_workers=4):
+    def __init__(self, download_workers=4):
         self._task_queue = Manager().Queue()
         self._download_queue = Manager().Queue()
         self._parse_queue = Manager().Queue()
         self._finish_queue = Manager().Queue()
 
-        pool = Pool(task_workers + download_workers + 4)
+        pool = Pool(download_workers + 4)
 
-        for i in range(0, task_workers):
-            print "Init task worker%s" % i
-            pool.apply_async(task_worker,
-                             ({
-                                 "task_queue": self._task_queue,
-                                 "download_queue": self._download_queue
-                             }, ))
+        print "Init task worker"
+        pool.apply_async(task_worker, ({
+            "task_queue": self._task_queue,
+            "download_queue": self._download_queue
+        }, ))
 
         for i in range(0, download_workers):
             print "Init download worker%s" % i
@@ -58,6 +56,11 @@ class WebOverdrive(object):
             "setting": Setting(task_setting)
         }
         self._task_queue.put(package)
+
+    # TODO
+    def stop(self, spider_id):
+        update_spider_status(spider_id, "Stopping...")
+        pass
 
 
 def task_worker(queues):
@@ -98,8 +101,13 @@ def download_worker(queues):
         url = spider["url"]
         next = spider["next"]
 
+        task_stop_flag = False
+
         while url:
-            # url deduplication
+
+            if task_stop_flag:
+                break
+
             read.append(url)
 
             # download pages
